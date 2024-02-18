@@ -1,0 +1,55 @@
+WindowManager
+    Registration:
+    Definitions:
+    Quiz:
+
+<Registration>:
+    name: "Registration"
+
+    BoxLayout:
+        orientation: "vertical"
+        size: root.width, root.height
+        Label:
+            text: "Registration"
+            font_size: 32
+
+        Button:
+            text: "Next Screen"
+            font_size: 12
+            on_release:
+                app.root.current = "Definitions"
+                root.manager.transition.direction = "left"
+
+<Definitions>:
+    name: "Definitions"
+
+    BoxLayout:
+        orientation: "vertical"
+        size: root.width, root.height
+        Label:
+            text: "Definitions"
+            font_size: 32
+
+        Button:
+            text: "Next Screen"
+            font_size: 12
+            on_release:
+                app.root.current = "Quiz"
+                root.manager.transition.direction = "left"
+
+<Quiz>:
+    name: "Quiz"
+
+    BoxLayout:
+        orientation: "vertical"
+        size: root.width, root.height
+        Label:
+            text: "Quiz"
+            font_size: 32
+
+        Button:
+            text: "Next Screen"
+            font_size: 32
+            on_release:
+                app.root.current = "Quiz"
+                root.manager.transition.direction = "Registration"
