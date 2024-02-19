@@ -7,6 +7,11 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.uix.popup import Popup
+from kivy.properties import ListProperty, NumericProperty
+from kivy.uix.togglebutton import ToggleButton
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.gridlayout import GridLayout
+
 
 variable_lesson = {
     "variable": "Python variables are the reserved memory locations used to store values with in a Python Program.",
@@ -100,8 +105,111 @@ class Definitions(Screen):
             item_label = Label(text=f"{key}: {value}")
             layout.add_widget(item_label)
 
+questions = [
+    {"question": "what is a variable",
+    "options": {
+        "a": "Python variables are the reserved memory locations used to store values with in a Python Program",
+        "b": "it is the equivalent of a tuple",
+        "c": "it is a chance for us to use the  pass function"
+        },
+        "correct_answer": "a"
+    },
+    {"question": "how do we print variables",
+    "options": {
+        "a": "console.log())",
+        "b": "print()",
+        "c": "printf()"
+        },
+        "correct_answer": "b"
+    },
+    {"question": "how do we delete variables",
+    "options": {
+        "a": "pop()",
+        "b": "delete()",
+        "c": "del()"
+        },
+        "correct_answer": "c"
+    },
+    {
+        "question": "How do we find out the data type in a variable?",
+        "options": {
+            "a": "type()",
+            "b": "var()",
+            "c": "find()"
+        },
+        "correct_answer": "a"
+    },
+    {
+        "question": "What is the use of casting a variable?",
+        "options": {
+            "a": "to use the pass key",
+            "b": "this is where you can change the data type",
+            "c": "to define a function"
+        },
+        "correct_answer": "b"
+    }
+]
 class Quiz(Screen):
-    pass
+    current_question = NumericProperty(0)
+    user_answers = ListProperty([])
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.layout = GridLayout(cols=1, spacing=10, size_hint_y=None)
+        self.layout.bind(minimum_height=self.layout.setter('height'))
+        self.load_question()
+
+    def load_question(self):
+        self.layout.clear_widgets()
+        question_data = questions[self.current_question]
+        question_label = Label(text=question_data["question"], size_hint_y=None, height=50)
+        self.layout.add_widget(question_label)
+
+        options_layout = GridLayout(cols=1, spacing=10, size_hint_y=None)
+        options_layout.bind(minimum_height=options_layout.setter('height'))
+        for option, text in question_data["options"].items():
+            option_button = ToggleButton(text=f"{option.upper()}: {text}", group='options', size_hint_y=None, height=40)
+            option_button.bind(on_release=self.on_option_selected)
+            options_layout.add_widget(option_button)
+        self.layout.add_widget(ScrollView(size_hint=(1, None), size=(400, 200), do_scroll_y=True, do_scroll_x=False, bar_width='10dp', scroll_type=['bars']))
+        self.layout.add_widget(options_layout)
+
+        next_button = Button(text="Next", size_hint_y=None, height=40)
+        next_button.bind(on_release=self.next_question)
+        self.layout.add_widget(next_button)
+
+        self.add_widget(self.layout)
+
+    def on_option_selected(self, instance):
+        selected_option = instance.text.split(':')[0].lower()
+        self.user_answers.append((self.current_question, selected_option))
+
+    def next_question(self, instance):
+        self.current_question += 1
+        if self.current_question < len(questions):
+            self.load_question()
+        else:
+            self.show_results()
+
+    def show_results(self):
+        self.layout.clear_widgets()
+        correct_answers = 0
+        for q_num, selected_option in self.user_answers:
+            question = questions[q_num]
+            if selected_option == question["correct_answer"]:
+                correct_answers += 1
+            self.layout.add_widget(Label(text=f"Question: {question['question']}\nYour answer: {selected_option}\nCorrect answer: {question['correct_answer']}"))
+
+        self.layout.add_widget(Label(text=f"Score: {correct_answers}/{len(questions)}"))
+        restart_button = Button(text="Restart Quiz", size_hint_y=None, height=40)
+        restart_button.bind(on_release=self.restart_quiz)
+        self.layout.add_widget(restart_button)
+
+    def restart_quiz(self, instance):
+        self.current_question = 0
+        self.user_answers = []
+        self.load_question()
+    
 
 class WindowManager(ScreenManager):
     pass
